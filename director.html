@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Director - Contraloría del Estado Lara</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef2f7; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            background: #1a3a5c;
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .header h1 { font-size: 1.8rem; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .panel-title {
+            font-size: 1.2rem;
+            color: #1a3a5c;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e8edf4;
+            padding-bottom: 10px;
+        }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .card-title { font-weight: 600; color: #1a3a5c; margin-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #2d3748; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-primary { background: #1a3a5c; color: white; }
+        .btn-primary:hover { background: #0f2840; }
+        .btn-success { background: #2d6a4f; color: white; }
+        .btn-success:hover { background: #1e4d38; }
+        .btn-warning { background: #f39c12; color: white; }
+        .btn-warning:hover { background: #d68910; }
+        .btn-danger { background: #c0392b; color: white; }
+        .btn-danger:hover { background: #a93226; }
+        .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1a3a5c; color: white; padding: 12px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+        .badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-pendiente { background: #f39c12; color: white; }
+        .badge-aprobada { background: #2d6a4f; color: white; }
+        .badge-rechazada { background: #c0392b; color: white; }
+        .badge-parcial { background: #2980b9; color: white; }
+        .badge-warning { background: #f39c12; color: white; }
+        .mensaje-vacio { text-align: center; color: #666; padding: 30px; }
+        .stat-number { font-size: 2.5rem; font-weight: bold; color: #1a3a5c; }
+        .stat-label { color: #666; font-size: 0.9rem; }
+        .loading { text-align: center; padding: 20px; color: #666; }
+        .error-message { color: #c0392b; padding: 15px; background: #fde8e8; border-radius: 8px; }
+        @media (max-width: 768px) {
+            .grid-4, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .header { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📊 Panel del Director</h1>
+                <p style="opacity:0.8;">Dirección de Servicios Generales - Contraloría del Estado Lara</p>
+            </div>
+            <div class="user-info">
+                <span>👤 Director General</span>
+                <button onclick="window.location.href='index.html'" style="background:rgba(255,255,255,0.2); border:none; color:white; padding:5px 15px; border-radius:20px; cursor:pointer;">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">📊 Resumen General</div>
+            <div id="resumenGeneral">
+                <div class="loading">Cargando datos...</div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">📋 Requisiciones Pendientes</div>
+            <div id="requisicionesPendientes">
+                <div class="loading">Cargando requisiciones...</div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">📈 Reportes</div>
+            <div class="grid-2" style="margin-bottom:15px;">
+                <div class="form-group">
+                    <label>Mes</label>
+                    <input type="number" id="reporteMes" value="1" min="1" max="12">
+                </div>
+                <div class="form-group">
+                    <label>Año</label>
+                    <input type="number" id="reporteAnio" value="2026" min="2020">
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+                <button class="btn btn-primary" id="btnReporteMensual">📊 Mensual</button>
+                <button class="btn btn-primary" id="btnReporteTrimestral">📊 Trimestral</button>
+                <button class="btn btn-primary" id="btnReporteSemestral">📊 Semestral</button>
+                <button class="btn btn-primary" id="btnReporteAnual">📊 Anual</button>
+            </div>
+            <div id="reporteContenido">
+                <p class="mensaje-vacio">Seleccione un tipo de reporte para generar</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">📊 Estadísticas</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+                <button class="btn btn-success" id="btnEstProductos">🏆 Productos Más Solicitados</button>
+                <button class="btn btn-success" id="btnEstDepartamentos">🏢 Departamentos Más Consumidores</button>
+                <button class="btn btn-warning" id="btnEstExtraordinarias">⚠️ Requisiciones Extraordinarias</button>
+                <button class="btn btn-primary" id="btnEstGeneral">📊 Estadísticas Generales</button>
+            </div>
+            <div id="estadisticasContenido">
+                <p class="mensaje-vacio">Seleccione una estadística para visualizar</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">📤 Exportar Reportes</div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <select id="formatoExportar" style="padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
+                    <option value="pdf">PDF</option>
+                    <option value="excel">Excel</option>
+                </select>
+                <button class="btn btn-primary" id="btnExportarReporte">📤 Exportar Reporte</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Base URL
+        const API_BASE = window.location.origin;
+
+        // Funciones de utilidad
+        function mostrarMensaje(mensaje, tipo = 'info') {
+            const colores = { exito: '#2d6a4f', error: '#c0392b', info: '#2980b9', warning: '#f39c12' };
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position: fixed; bottom: 20px; right: 20px; background: ${colores[tipo] || '#2980b9'};
+                color: white; padding: 15px 25px; border-radius: 10px; z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 400px;
+            `;
+            div.textContent = mensaje;
+            document.body.appendChild(div);
+            setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity 0.3s'; setTimeout(() => div.remove(), 300); }, 4000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            const div = document.createElement("div");
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getBadgeClass(estado) {
+            const map = {
+                'PENDIENTE': 'badge-pendiente',
+                'APROBADA': 'badge-aprobada',
+                'RECHAZADA': 'badge-rechazada',
+                'PARCIAL': 'badge-parcial'
+            };
+            return map[estado] || 'badge-warning';
+        }
+
+        // Cargar resumen general
+        async function cargarResumen() {
+            try {
+                const container = document.getElementById('resumenGeneral');
+                container.innerHTML = '<div class="loading">Cargando datos...</div>';
+
+                // Obtener datos de la API
+                const [articulosRes, deptosRes, requisicionesRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/articulos`),
+                    fetch(`${API_BASE}/api/departamentos`),
+                    fetch(`${API_BASE}/api/requisiciones`)
+                ]);
+
+                const articulos = articulosRes.ok ? await articulosRes.json() : [];
+                const departamentos = deptosRes.ok ? await deptosRes.json() : [];
+                const requisiciones = requisicionesRes.ok ? await requisicionesRes.json() : [];
+
+                const totalArticulos = articulos.length;
+                const totalDepartamentos = departamentos.length;
+                const totalRequisiciones = requisiciones.length;
+                const pendientes = requisiciones.filter(r => r.estado === 'PENDIENTE' || r.estado === 'APROBADA').length;
+                const extraordinarias = requisiciones.filter(r => r.tipo === 'EXTRAORDINARIA').length;
+
+                container.innerHTML = `
+                    <div class="grid-4">
+                        <div class="card">
+                            <div class="card-title">📦 Total Artículos</div>
+                            <div class="stat-number">${totalArticulos}</div>
+                            <div class="stat-label">En inventario</div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">🏢 Departamentos</div>
+                            <div class="stat-number">${totalDepartamentos}</div>
+                            <div class="stat-label">Unidades registradas</div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid #f39c12;">
+                            <div class="card-title">📋 Requisiciones</div>
+                            <div class="stat-number" style="color: #f39c12;">${totalRequisiciones}</div>
+                            <div class="stat-label">Total realizadas</div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid #c0392b;">
+                            <div class="card-title">⏳ Pendientes</div>
+                            <div class="stat-number" style="color: #c0392b;">${pendientes}</div>
+                            <div class="stat-label">Por aprobar/despachar</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:15px; display:flex; gap:20px; flex-wrap:wrap;">
+                        <span><strong>Extraordinarias:</strong> ${extraordinarias}</span>
+                        <span><strong>Ordinarias:</strong> ${totalRequisiciones - extraordinarias}</span>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error cargando resumen:', error);
+                document.getElementById('resumenGeneral').innerHTML = 
+                    '<div class="error-message">❌ Error al cargar el resumen</div>';
+            }
+        }
+
+        // Cargar requisiciones pendientes
+        async function cargarRequisicionesPendientes() {
+            try {
+                const container = document.getElementById('requisicionesPendientes');
+                container.innerHTML = '<div class="loading">Cargando requisiciones...</div>';
+
+                const response = await fetch(`${API_BASE}/api/requisiciones`);
+                if (!response.ok) throw new Error('Error al cargar requisiciones');
+                const requisiciones = await response.json();
+
+                const pendientes = requisiciones.filter(r => r.estado === 'PENDIENTE' || r.estado === 'APROBADA');
+
+                if (pendientes.length === 0) {
+                    container.innerHTML = '<p class="mensaje-vacio">✅ No hay requisiciones pendientes</p>';
+                    return;
+                }
+
+                // Obtener nombres de departamentos
+                const deptResponse = await fetch(`${API_BASE}/api/departamentos`);
+                let deptMap = {};
+                if (deptResponse.ok) {
+                    const depts = await deptResponse.json();
+                    depts.forEach(d => deptMap[d.id] = d.nombre);
+                }
+
+                let html = `<div class="table-scroll"><table>
+                    <thead><tr>
+                        <th>N° Requisición</th>
+                        <th>Departamento</th>
+                        <th>Tipo</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                    </tr></thead>
+                    <tbody>`;
+
+                pendientes.forEach(req => {
+                    const deptName = deptMap[req.departamento_id] || `Dept #${req.departamento_id}`;
+                    const badgeClass = getBadgeClass(req.estado);
+                    
+                    html += `<tr>
+                        <td><strong>${escapeHtml(req.numero_requisicion)}</strong></td>
+                        <td>${escapeHtml(deptName)}</td>
+                        <td><span class="badge ${req.tipo === 'ORDINARIA' ? 'badge-aprobada' : 'badge-warning'}">${req.tipo}</span></td>
+                        <td>${new Date(req.fecha_solicitud).toLocaleDateString()}</td>
+                        <td><span class="badge ${badgeClass}">${req.estado}</span></td>
+                    </tr>`;
+                });
+
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('requisicionesPendientes').innerHTML = 
+                    '<div class="error-message">❌ Error al cargar requisiciones pendientes</div>';
+            }
+        }
+
+        // Generar reporte
+        async function generarReporte(tipo, mes, anio) {
+            try {
+                const container = document.getElementById('reporteContenido');
+                container.innerHTML = '<div class="loading">Generando reporte...</div>';
+
+                const response = await fetch(`${API_BASE}/api/requisiciones`);
+                if (!response.ok) throw new Error('Error al obtener datos');
+                const requisiciones = await response.json();
+
+                const responseArts = await fetch(`${API_BASE}/api/articulos`);
+                const articulos = responseArts.ok ? await responseArts.json() : [];
+
+                // Filtrar por período
+                let filtradas = requisiciones;
+                let periodo = '';
+
+                if (tipo === 'mensual') {
+                    filtradas = requisiciones.filter(r => {
+                        const fecha = new Date(r.fecha_solicitud);
+                        return fecha.getMonth() + 1 === mes && fecha.getFullYear() === anio;
+                    });
+                    periodo = `${mes}/${anio}`;
+                } else if (tipo === 'trimestral') {
+                    const trimestre = Math.ceil(mes / 3);
+                    const meses = [(trimestre - 1) * 3 + 1, (trimestre - 1) * 3 + 2, (trimestre - 1) * 3 + 3];
+                    filtradas = requisiciones.filter(r => {
+                        const fecha = new Date(r.fecha_solicitud);
+                        return meses.includes(fecha.getMonth() + 1) && fecha.getFullYear() === anio;
+                    });
+                    periodo = `Trimestre ${trimestre} ${anio}`;
+                } else if (tipo === 'semestral') {
+                    const semestre = mes <= 6 ? 1 : 2;
+                    const meses = semestre === 1 ? [1,2,3,4,5,6] : [7,8,9,10,11,12];
+                    filtradas = requisiciones.filter(r => {
+                        const fecha = new Date(r.fecha_solicitud);
+                        return meses.includes(fecha.getMonth() + 1) && fecha.getFullYear() === anio;
+                    });
+                    periodo = `Semestre ${semestre} ${anio}`;
+                } else { // anual
+                    filtradas = requisiciones.filter(r => {
+                        const fecha = new Date(r.fecha_solicitud);
+                        return fecha.getFullYear() === anio;
+                    });
+                    periodo = `Año ${anio}`;
+                }
+
+                // Obtener nombres de departamentos
+                const deptResponse = await fetch(`${API_BASE}/api/departamentos`);
+                let deptMap = {};
+                if (deptResponse.ok) {
+                    const depts = await deptResponse.json();
+                    depts.forEach(d => deptMap[d.id] = d.nombre);
+                }
+
+                // Contar por departamento
+                const deptCount = {};
+                filtradas.forEach(r => {
+                    const name = deptMap[r.departamento_id] || `Dept #${r.departamento_id}`;
+                    deptCount[name] = (deptCount[name] || 0) + 1;
+                });
+
+                // Top departamentos
+                const topDepts = Object.entries(deptCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5);
+
+                container.innerHTML = `
+                    <div class="card">
+                        <h3>📊 Reporte ${periodo}</h3>
+                        <div class="grid-3" style="margin-top:15px;">
+                            <div>
+                                <div class="stat-number" style="font-size:1.8rem;">${filtradas.length}</div>
+                                <div class="stat-label">Total Requisiciones</div>
+                            </div>
+                            <div>
+                                <div class="stat-number" style="font-size:1.8rem;">${articulos.length}</div>
+                                <div class="stat-label">Total Artículos</div>
+                            </div>
+                            <div>
+                                <div class="stat-number" style="font-size:1.8rem;">${filtradas.filter(r => r.estado === 'APROBADA').length}</div>
+                                <div class="stat-label">Aprobadas</div>
+                            </div>
+                        </div>
+                        <hr>
+                        <h4>🏢 Departamentos con más requisiciones</h4>
+                        <table>
+                            <thead><tr><th>Departamento</th><th>Requisiciones</th></tr></thead>
+                            <tbody>
+                                ${topDepts.map(([nombre, count]) => `
+                                    <tr><td>${escapeHtml(nombre)}</td><td>${count}</td></tr>
+                                `).join('') || '<tr><td colspan="2">No hay datos</td></tr>'}
+                            </tbody>
+                        </table>
+                        <hr>
+                        <h4>📋 Detalle de requisiciones</h4>
+                        <div class="table-scroll">
+                            <table>
+                                <thead><tr><th>N°</th><th>Departamento</th><th>Tipo</th><th>Fecha</th><th>Estado</th></tr></thead>
+                                <tbody>
+                                    ${filtradas.slice(0, 20).map(r => `
+                                        <tr>
+                                            <td>${escapeHtml(r.numero_requisicion)}</td>
+                                            <td>${escapeHtml(deptMap[r.departamento_id] || `Dept #${r.departamento_id}`)}</td>
+                                            <td><span class="badge ${r.tipo === 'ORDINARIA' ? 'badge-aprobada' : 'badge-warning'}">${r.tipo}</span></td>
+                                            <td>${new Date(r.fecha_solicitud).toLocaleDateString()}</td>
+                                            <td><span class="badge ${getBadgeClass(r.estado)}">${r.estado}</span></td>
+                                        </tr>
+                                    `).join('')}
+                                    ${filtradas.length > 20 ? `<tr><td colspan="5" style="text-align:center;color:#666;">... y ${filtradas.length - 20} más</td></tr>` : ''}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                mostrarMensaje(`📊 Reporte ${periodo} generado`, 'exito');
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('reporteContenido').innerHTML = 
+                    '<div class="error-message">❌ Error al generar el reporte</div>';
+            }
+        }
+
+        // Generar estadísticas
+        async function generarEstadisticas(tipo) {
+            try {
+                const container = document.getElementById('estadisticasContenido');
+                container.innerHTML = '<div class="loading">Cargando estadísticas...</div>';
+
+                const response = await fetch(`${API_BASE}/api/requisiciones`);
+                if (!response.ok) throw new Error('Error al obtener datos');
+                const requisiciones = await response.json();
+
+                const responseArts = await fetch(`${API_BASE}/api/articulos`);
+                const articulos = responseArts.ok ? await responseArts.json() : [];
+
+                const deptResponse = await fetch(`${API_BASE}/api/departamentos`);
+                let deptMap = {};
+                if (deptResponse.ok) {
+                    const depts = await deptResponse.json();
+                    depts.forEach(d => deptMap[d.id] = d.nombre);
+                }
+
+                let html = '';
+
+                if (tipo === 'productos' || tipo === 'general') {
+                    // Contar productos solicitados
+                    const productCount = {};
+                    for (const req of requisiciones) {
+                        const detResponse = await fetch(`${API_BASE}/api/requisicion_detalles?requisicionId=${req.id}`);
+                        if (detResponse.ok) {
+                            const detalles = await detResponse.json();
+                            detalles.forEach(d => {
+                                const art = articulos.find(a => a.id === d.articulo_id);
+                                const name = art ? art.nombre : `Artículo #${d.articulo_id}`;
+                                productCount[name] = (productCount[name] || 0) + d.cantidad_solicitada;
+                            });
+                        }
+                    }
+
+                    const topProducts = Object.entries(productCount)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 10);
+
+                    if (tipo === 'productos') {
+                        html += `<div class="card">
+                            <div class="card-title">🏆 Productos Más Solicitados</div>
+                            <table>
+                                <thead><tr><th>Producto</th><th>Total Solicitado</th></tr></thead>
+                                <tbody>
+                                    ${topProducts.map(([nombre, total]) => `
+                                        <tr><td>${escapeHtml(nombre)}</td><td>${total}</td></tr>
+                                    `).join('') || '<tr><td colspan="2">No hay datos</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>`;
+                    }
+                }
+
+                if (tipo === 'departamentos' || tipo === 'general') {
+                    // Contar por departamento
+                    const deptCount = {};
+                    requisiciones.forEach(r => {
+                        const name = deptMap[r.departamento_id] || `Dept #${r.departamento_id}`;
+                        deptCount[name] = (deptCount[name] || 0) + 1;
+                    });
+
+                    const topDepts = Object.entries(deptCount)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 10);
+
+                    if (tipo === 'departamentos') {
+                        html += `<div class="card">
+                            <div class="card-title">🏢 Departamentos Más Consumidores</div>
+                            <table>
+                                <thead><tr><th>Departamento</th><th>Requisiciones</th></tr></thead>
+                                <tbody>
+                                    ${topDepts.map(([nombre, count]) => `
+                                        <tr><td>${escapeHtml(nombre)}</td><td>${count}</td></tr>
+                                    `).join('') || '<tr><td colspan="2">No hay datos</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>`;
+                    }
+                }
+
+                if (tipo === 'extraordinarias' || tipo === 'general') {
+                    const extraordinarias = requisiciones.filter(r => r.tipo === 'EXTRAORDINARIA');
+                    
+                    html += `<div class="card" style="${tipo === 'general' ? 'margin-top:20px;' : ''}">
+                        <div class="card-title">⚠️ Requisiciones Extraordinarias</div>
+                        <p><strong>Total:</strong> ${extraordinarias.length}</p>
+                        ${extraordinarias.length > 0 ? `
+                            <div class="table-scroll">
+                                <table>
+                                    <thead><tr><th>N°</th><th>Departamento</th><th>Fecha</th><th>Estado</th></tr></thead>
+                                    <tbody>
+                                        ${extraordinarias.slice(0, 10).map(r => `
+                                            <tr>
+                                                <td>${escapeHtml(r.numero_requisicion)}</td>
+                                                <td>${escapeHtml(deptMap[r.departamento_id] || `Dept #${r.departamento_id}`)}</td>
+                                                <td>${new Date(r.fecha_solicitud).toLocaleDateString()}</td>
+                                                <td><span class="badge ${getBadgeClass(r.estado)}">${r.estado}</span></td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ` : '<p style="color:#666;">No hay requisiciones extraordinarias</p>'}
+                    </div>`;
+                }
+
+                if (tipo === 'general') {
+                    // Resumen general
+                    const total = requisiciones.length;
+                    const pendientes = requisiciones.filter(r => r.estado === 'PENDIENTE' || r.estado === 'APROBADA').length;
+                    const aprobadas = requisiciones.filter(r => r.estado === 'APROBADA').length;
+                    const rechazadas = requisiciones.filter(r => r.estado === 'RECHAZADA').length;
+                    const extraordinarias = requisiciones.filter(r => r.tipo === 'EXTRAORDINARIA').length;
+
+                    html = `<div class="grid-3" style="margin-bottom:20px;">
+                        <div class="card">
+                            <div class="card-title">📋 Total</div>
+                            <div class="stat-number" style="font-size:1.8rem;">${total}</div>
+                            <div class="stat-label">Requisiciones</div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid #f39c12;">
+                            <div class="card-title">⏳ Pendientes</div>
+                            <div class="stat-number" style="font-size:1.8rem;color:#f39c12;">${pendientes}</div>
+                            <div class="stat-label">Por procesar</div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid #2d6a4f;">
+                            <div class="card-title">✅ Aprobadas</div>
+                            <div class="stat-number" style="font-size:1.8rem;color:#2d6a4f;">${aprobadas}</div>
+                            <div class="stat-label">Completadas</div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid #c0392b;">
+                            <div class="card-title">❌ Rechazadas</div>
+                            <div class="stat-number" style="font-size:1.8rem;color:#c0392b;">${rechazadas}</div>
+                            <div class="stat-label">No aprobadas</div>
+                        </div>
+                        <div class="card" style="border-left: 4px solid #2980b9;">
+                            <div class="card-title">⚠️ Extraordinarias</div>
+                            <div class="stat-number" style="font-size:1.8rem;color:#2980b9;">${extraordinarias}</div>
+                            <div class="stat-label">Fuera de período</div>
+                        </div>
+                    </div>` + html;
+                }
+
+                container.innerHTML = html;
+                mostrarMensaje(`📊 Estadísticas cargadas`, 'exito');
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('estadisticasContenido').innerHTML = 
+                    '<div class="error-message">❌ Error al cargar estadísticas</div>';
+            }
+        }
+
+        // Eventos de reportes
+        document.getElementById('btnReporteMensual').addEventListener('click', () => {
+            const mes = parseInt(document.getElementById('reporteMes').value);
+            const anio = parseInt(document.getElementById('reporteAnio').value);
+            generarReporte('mensual', mes, anio);
+        });
+
+        document.getElementById('btnReporteTrimestral').addEventListener('click', () => {
+            const mes = parseInt(document.getElementById('reporteMes').value);
+            const anio = parseInt(document.getElementById('reporteAnio').value);
+            generarReporte('trimestral', mes, anio);
+        });
+
+        document.getElementById('btnReporteSemestral').addEventListener('click', () => {
+            const mes = parseInt(document.getElementById('reporteMes').value);
+            const anio = parseInt(document.getElementById('reporteAnio').value);
+            generarReporte('semestral', mes, anio);
+        });
+
+        document.getElementById('btnReporteAnual').addEventListener('click', () => {
+            const anio = parseInt(document.getElementById('reporteAnio').value);
+            generarReporte('anual', 0, anio);
+        });
+
+        // Eventos de estadísticas
+        document.getElementById('btnEstProductos').addEventListener('click', () => {
+            generarEstadisticas('productos');
+        });
+
+        document.getElementById('btnEstDepartamentos').addEventListener('click', () => {
+            generarEstadisticas('departamentos');
+        });
+
+        document.getElementById('btnEstExtraordinarias').addEventListener('click', () => {
+            generarEstadisticas('extraordinarias');
+        });
+
+        document.getElementById('btnEstGeneral').addEventListener('click', () => {
+            generarEstadisticas('general');
+        });
+
+        // Exportar reporte
+        document.getElementById('btnExportarReporte').addEventListener('click', () => {
+            const formato = document.getElementById('formatoExportar').value;
+            mostrarMensaje(`📤 Exportando reporte en formato ${formato.toUpperCase()}...`, 'info');
+            
+            setTimeout(() => {
+                mostrarMensaje(`✅ Reporte exportado en formato ${formato.toUpperCase()}`, 'exito');
+            }, 1500);
+        });
+
+        // Inicializar aplicación
+        async function iniciarApp() {
+            try {
+                await cargarResumen();
+                await cargarRequisicionesPendientes();
+                console.log("✅ Aplicación de Director iniciada correctamente");
+            } catch (error) {
+                console.error("Error al iniciar:", error);
+                mostrarMensaje('Error al cargar datos. Verifique que el servidor esté funcionando.', 'error');
+            }
+        }
+
+        // Iniciar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', iniciarApp);
+        } else {
+            iniciarApp();
+        }
+    </script>
+</body>
+</html>

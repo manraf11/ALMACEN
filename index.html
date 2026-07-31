@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema de Almacén</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1a3a5c;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .login-container h1 {
+            color: #1a3a5c;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .login-container p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #1a3a5c;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #1a3a5c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn:hover { background: #0f2840; }
+        .btn-departamento {
+            background: #2d6a4f;
+            margin-top: 10px;
+        }
+        .btn-departamento:hover { background: #1e4d38; }
+        .btn-director {
+            background: #764ba2;
+            margin-top: 10px;
+        }
+        .btn-director:hover { background: #5a3780; }
+        .error {
+            color: #c0392b;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>🏢 Sistema de Almacén</h1>
+        <p>Contraloría del Estado Lara</p>
+        
+        <div class="form-group">
+            <label>Usuario</label>
+            <input type="text" id="loginUsuario" placeholder="Ingrese su usuario" value="admin">
+        </div>
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" id="loginPassword" placeholder="Ingrese su contraseña" value="admin123">
+        </div>
+        
+        <button class="btn" id="btnLoginAlmacenista">🔐 Ingresar como Almacenista</button>
+        <button class="btn btn-departamento" id="btnLoginDepartamento">📋 Ingresar como Departamento</button>
+        <button class="btn btn-director" id="btnLoginDirector">📊 Ingresar como Director</button>
+        
+        <div id="loginError" class="error">❌ Usuario o contraseña incorrectos</div>
+    </div>
+
+    <script>
+        document.getElementById('btnLoginAlmacenista').onclick = () => {
+            window.location.href = 'almacenista.html';
+        };
+        document.getElementById('btnLoginDepartamento').onclick = () => {
+            window.location.href = 'departamento.html';
+        };
+        document.getElementById('btnLoginDirector').onclick = () => {
+            window.location.href = 'director.html';
+        };
+    </script>
+</body>
+</html>
